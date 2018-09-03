@@ -52,22 +52,20 @@ export default function createGpx(waypoints, options = {}) {
   const defaultSettings = {
     activityName: "Everyday I'm hustlin'",
     creator: 'Patrick Hooper',
-    courseKey: 'course',
     eleKey: 'elevation',
     extKey: 'extensions',
     hdopKey: 'hdop',
     latKey: 'latitude',
     lonKey: 'longitude',
-    speedKey: 'speed',
     startTime: null,
     timeKey: 'time',
     vdopKey: 'vdop',
   };
   const settings = Object.assign({}, defaultSettings, options);
   const {
-    activityName, courseKey, creator,
+    activityName, creator,
     eleKey, extKey, hdopKey, latKey,
-    lonKey, speedKey, startTime,
+    lonKey, startTime,
     timeKey, vdopKey,
   } = settings;
 
@@ -85,13 +83,15 @@ export default function createGpx(waypoints, options = {}) {
   gpx.setAttribute('version', '1.1');
   gpx.setAttribute('xmlns', 'http://www.topografix.com/GPX/1/1');
   gpx.setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+  gpx.setAttribute('xmlns:gpxx', 'http://www.garmin.com/xmlschemas/GpxExtensions/v3');
+  gpx.setAttribute('xmlns:gpxtpx', 'http://www.garmin.com/xmlschemas/TrackPointExtension/v2');
   gpx.setAttribute('xsi:schemaLocation',
     'http://www.topografix.com/GPX/1/1 ' +
     'http://www.topografix.com/GPX/1/1/gpx.xsd ' +
     'http://www.garmin.com/xmlschemas/GpxExtensions/v3 ' +
     'http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd ' +
-    'http://www.garmin.com/xmlschemas/TrackPointExtension/v1 ' +
-    'http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd'
+    'http://www.garmin.com/xmlschemas/TrackPointExtension/v2 ' +
+    'http://www.garmin.com/xmlschemas/TrackPointExtensionv2.xsd'
   );
 
   // Add a `<metadata>` element to `<gpx>`. `<metadata>` gets a nested `<name>` element, and a
@@ -131,22 +131,16 @@ export default function createGpx(waypoints, options = {}) {
     }
 
     // For every waypoint, add a `<trkpt>` element with a `lat` and `lon` attribute to `<trkseg>`.
-    // Other elements (elevation, time, course, speed, hdop, vdop) are added if
+    // Other elements (elevation, time, hdop, vdop) are added if
     // the point has a corresponding key for each (as defined by the `eleKey` etc settings)
     const trkpt = trkseg.appendChild(xmlDoc.createElement('trkpt'));
     trkpt.setAttribute('lat', point[latKey]);
     trkpt.setAttribute('lon', point[lonKey]);
-    if ({}.hasOwnProperty.call(point, courseKey)) {
-      addTextNode(trkpt, 'course', point[courseKey]);
-    }
     if ({}.hasOwnProperty.call(point, eleKey)) {
       addTextNode(trkpt, 'ele', point[eleKey]);
     }
     if ({}.hasOwnProperty.call(point, hdopKey)) {
       addTextNode(trkpt, 'hdop', point[hdopKey]);
-    }
-    if ({}.hasOwnProperty.call(point, speedKey)) {
-      addTextNode(trkpt, 'speed', point[speedKey]);
     }
     if ({}.hasOwnProperty.call(point, vdopKey)) {
       addTextNode(trkpt, 'vdop', point[vdopKey]);
@@ -159,9 +153,11 @@ export default function createGpx(waypoints, options = {}) {
     if ({}.hasOwnProperty.call(point, extKey)) {
       const extensions = trkpt.appendChild(xmlDoc.createElement('extensions'));
       const gpxtpxExtensions = extensions.appendChild(xmlDoc.createElement('gpxtpx:TrackPointExtension'));
-      Object.keys(point[extKey]).forEach((ext) => {
-        addTextNode(gpxtpxExtensions, `gpxtpx:${ext}`, point[extKey][ext]);
-      });
+      if ({}.hasOwnProperty.call(point, extKey)) {
+        Object.keys(point[extKey]).forEach((ext) => {
+          addTextNode(gpxtpxExtensions, `gpxtpx:${ext}`, point[extKey][ext]);
+        });
+      }
     }
   });
 
