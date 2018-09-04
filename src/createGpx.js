@@ -1,5 +1,4 @@
 // Library imports
-import { document, XMLSerializer } from './shim-document';
 import { doesExist, getType } from './utils';
 
 function assertArgValidity(waypoints, options) {

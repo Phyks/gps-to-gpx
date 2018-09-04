@@ -24,10 +24,8 @@
     "README.md",
     "src"
   ],
-  "browser": {
-    "lib/shim-document.js": false
-  },
   "main": "lib/index.js",
+  "module": "src/index.js",
   "jsnext:main": "es/index.js",
   "repository": {
     "type": "git",
