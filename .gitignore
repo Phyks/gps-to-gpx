@@ -1,8 +1,5 @@
 /.nyc_output/
 /coverage/
-/dist/
-/es/
 /examples/**/data/**/*.gpx
-/lib/
 node_modules/
 npm-debug.log
